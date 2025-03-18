@@ -6,9 +6,16 @@ exports.generateAIClip = async (req, res) => {
 
     try {
         // 1️⃣ Generate Image using Stability AI
-        const imageResponse = await axios.post("https://stability-api.com/generate", {
+        const imageResponse = await axios.post("https://api.stability.ai/v2beta/image/generate", {
             prompt: message,
-            api_key: stabilityApiKey
+            steps: 30,
+            width: 512,
+            height: 512,
+            samples: 1
+        }, {
+            headers: {
+                Authorization: `Bearer ${stabilityApiKey}`
+            }
         });
 
         const imageUrl = imageResponse.data.image_url;
@@ -16,8 +23,11 @@ exports.generateAIClip = async (req, res) => {
         // 2️⃣ Generate Voiceover using Eleven Labs
         const voiceResponse = await axios.post("https://api.elevenlabs.io/v1/text-to-speech", {
             text: message,
-            voice_id: voice || "Rachel",
-            api_key: elevenLabsApiKey
+            voice_id: voice || "Rachel"
+        }, {
+            headers: {
+                Authorization: `Bearer ${elevenLabsApiKey}`
+            }
         });
 
         const voiceUrl = voiceResponse.data.audio_url;
