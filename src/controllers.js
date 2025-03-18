@@ -10,18 +10,16 @@ exports.generateAIClip = async (req, res) => {
             throw new Error("Missing API Keys. Set STABILITY_API_KEY and ELEVENLABS_API_KEY in environment variables.");
         }
         // 1️⃣ Generate Image using Stability AI
-        const imageResponse = await axios.post("https://api.stability.ai/v2beta/stable-image/generate/sd3", {
+        const payload = {
             prompt: message,
-            steps: 30,
-            width: 512,
-            height: 512,
-            samples: 1,
-            output_format: "png",
-        }, {
+            output_format: "jpeg"
+          };
+        const imageResponse = await axios.postForm("https://api.stability.ai/v2beta/stable-image/generate/sd3", axios.toFormData(payload, new FormData()), {
+            validateStatus: undefined,
+            responseType: "arraybuffer",
             headers: {
                 "Authorization": `Bearer ${stabilityApiKey}`,
-                "Accept": "application/json",
-                "Content-Type": "application/json"
+                "Accept": "image/*"
             }
         });
 
