@@ -5,6 +5,10 @@ exports.generateAIClip = async (req, res) => {
     const { userId, message, voice, stabilityApiKey, elevenLabsApiKey } = req.body;
 
     try {
+        // Validate API Keys
+        if (!stabilityApiKey || !elevenLabsApiKey) {
+            throw new Error("Missing API Keys. Set STABILITY_API_KEY and ELEVENLABS_API_KEY in environment variables.");
+        }
         // 1️⃣ Generate Image using Stability AI
         const imageResponse = await axios.post("https://api.stability.ai/v2beta/stable-image/generate/sd3", {
             prompt: message,
@@ -15,15 +19,17 @@ exports.generateAIClip = async (req, res) => {
             output_format: "jpeg",
         }, {
             headers: {
-                Authorization: `Bearer ${stabilityApiKey}`,
-                Accept: "image/*",
+                "Authorization": `Bearer ${stabilityApiKey}`,
+                "Accept": "application/json",
+                "Content-Type": "application/json"
             }
         });
 
         if (!imageResponse.data || !imageResponse.data.artifacts) {
             throw new Error("Invalid response from Stability AI");
         }
-        const imageUrl = imageResponse.data.image_url;
+        const imageUrl = imageResponse.data.artifacts[0].url;
+        console.log("✅ AI Image Generated:", imageUrl);
 
         // 2️⃣ Generate Voiceover using Eleven Labs
         const voiceResponse = await axios.post("https://api.elevenlabs.io/v1/text-to-speech", {
@@ -31,14 +37,17 @@ exports.generateAIClip = async (req, res) => {
             voice_id: voice || "Rachel"
         }, {
             headers: {
-                Authorization: `Bearer ${elevenLabsApiKey}`
+                "Authorization": `Bearer ${elevenLabsApiKey}`,
+                "Accept": "application/json",
+                "Content-Type": "application/json"
             }
         });
-        
+
         if (!voiceResponse.data || !voiceResponse.data.audio_url) {
             throw new Error("Invalid response from Eleven Labs");
         }
         const voiceUrl = voiceResponse.data.audio_url;
+        console.log("✅ AI Voiceover Generated:", voiceUrl);
 
         // 3️⃣ Merge Image & Voice into Video using FFmpeg (Mock)
         const videoUrl = `/public/generated/${userId}.mp4`;
