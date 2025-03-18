@@ -1,15 +1,14 @@
 const axios = require("axios");
 const fs = require("fs");
-require("dotenv").config();
 
 exports.generateAIClip = async (req, res) => {
-    const { userId, message, voice } = req.body;
+    const { userId, message, voice, stabilityApiKey, elevenLabsApiKey } = req.body;
 
     try {
-        // 1️⃣ Generate Image using Stability UI (Stable Diffusion)
+        // 1️⃣ Generate Image using Stability AI
         const imageResponse = await axios.post("https://stability-api.com/generate", {
             prompt: message,
-            api_key: process.env.STABILITY_API_KEY
+            api_key: stabilityApiKey
         });
 
         const imageUrl = imageResponse.data.image_url;
@@ -18,7 +17,7 @@ exports.generateAIClip = async (req, res) => {
         const voiceResponse = await axios.post("https://api.elevenlabs.io/v1/text-to-speech", {
             text: message,
             voice_id: voice || "Rachel",
-            api_key: process.env.ELEVENLABS_API_KEY
+            api_key: elevenLabsApiKey
         });
 
         const voiceUrl = voiceResponse.data.audio_url;
@@ -29,6 +28,6 @@ exports.generateAIClip = async (req, res) => {
 
         res.json({ video_url: videoUrl });
     } catch (error) {
-        res.status(500).json({ error: "Generation failed", details: error.message });
+        res.status(500).json({ error: "AI Processing failed", details: error.message });
     }
 };

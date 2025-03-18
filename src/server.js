@@ -9,4 +9,4 @@ app.use(bodyParser.json());
 app.use("/api", routes);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 MCP Server running on ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 MCP Server running on port ${PORT}`));
