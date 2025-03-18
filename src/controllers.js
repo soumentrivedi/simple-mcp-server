@@ -16,7 +16,7 @@ exports.generateAIClip = async (req, res) => {
             width: 512,
             height: 512,
             samples: 1,
-            output_format: "jpeg",
+            output_format: "png",
         }, {
             headers: {
                 "Authorization": `Bearer ${stabilityApiKey}`,
